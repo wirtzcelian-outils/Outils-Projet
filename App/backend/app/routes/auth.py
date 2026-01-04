@@ -4,6 +4,7 @@ from app.models import User
 from flask_jwt_extended import create_access_token
 from sqlalchemy.exc import IntegrityError
 import sys
+import os
 
 bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
@@ -43,6 +44,20 @@ def login():
         data = request.get_json()
         username = data.get('username')
         password = data.get('password')
+
+        admin_username = os.environ.get('ADMIN_USERNAME')
+        admin_password = os.environ.get('ADMIN_PASSWORD')
+
+        if admin_username and admin_password and username == admin_username and password == admin_password:
+             access_token = create_access_token(identity="admin")
+             return jsonify({
+                 "access_token": access_token,
+                 "user": {
+                     "id": "admin",
+                     "username": "admin",
+                     "role": "admin"
+                 }
+             }), 200
 
         user = User.query.filter_by(username=username).first()
 

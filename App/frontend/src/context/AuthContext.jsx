@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }) => {
         try {
             const response = await axios.post('/api/auth/login', { username, password });
             const newToken = response.data.access_token;
-            // Backend returns { access_token, user: { id, username } }
+            // Backend returns { access_token, user: { id, username, role? } }
             const userData = { ...response.data.user, token: newToken };
 
             setToken(newToken);
@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }) => {
             axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
             setUser(userData);
 
-            return true;
+            return userData;
         } catch (error) {
             console.error("Login failed", error);
             return false;
@@ -73,7 +73,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+        <AuthContext.Provider value={{ user, token, login, register, logout, loading }}>
             {!loading && children}
         </AuthContext.Provider>
     );

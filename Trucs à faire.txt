@@ -1,0 +1,19 @@
+Compléter liste des trucs à faire
+
+voir api machins
+
+le .env pas visible ce serait mieux
+
+changer le readme (MongoDB --> MySQL)
+préciser on pourra pas ajouter d'image pour un nouveau film (pas envie de configurer ça)
+
+Modifier dossier MySQL et virer ce qui sert plus à rien (et tout le reste aussi regarder le reste du code et faire tri + tests après)
+
+docker-compose up --build fait pas tout, il faut aussi avoir les bons dossiers et conf, vérifier ce qu'on peut faire notamment pour MySQL que je peux pas mettre sur git, le but c'est quand même d'avoir une app portative (qui refait sa bda si besoin)
+
+Peut-être faire un bouton pour faire un dossier sauvegarde juste pour avoir toutes les données du truc pour une migration par exemple (chez admin --> fait un zip) ??? 
+
+faire un comment installer et comment utiliser (les commandes, les manipulations etc...) 
+
+Relire le sujet pour être sûr d'avoir fait tout ce qui était demandé
+Prépare pour une présentation ??? (on a pas de date actuellement)

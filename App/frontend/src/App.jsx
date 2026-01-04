@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Auth from './pages/Auth';
 import Dashboard from './pages/Dashboard';
+import Admin from './pages/Admin';
 import ListEditor from './pages/ListEditor';
 import SplashScreen from './components/SplashScreen';
 import { useState, useEffect } from 'react';
@@ -44,6 +45,11 @@ export default function App() {
                     <Route path="/dashboard" element={
                         <PrivateRoute>
                             <Dashboard />
+                        </PrivateRoute>
+                    } />
+                    <Route path="/admin" element={
+                        <PrivateRoute>
+                            <Admin />
                         </PrivateRoute>
                     } />
                     <Route path="/list/:listId" element={<ListEditor />} />

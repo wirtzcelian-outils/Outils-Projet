@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 
 export default function Dashboard() {
     const [query, setQuery] = useState('');
+    const [releaseDate, setReleaseDate] = useState('');
     const [movies, setMovies] = useState([]);
     const [myLists, setMyLists] = useState([]);
     const [showCreateModal, setShowCreateModal] = useState(false);
@@ -17,7 +18,7 @@ export default function Dashboard() {
         e.preventDefault();
         // Allow empty search to get default library
         try {
-            const res = await axios.get(`/api/movies/search?query=${query}`);
+            const res = await axios.get(`/api/movies/search?query=${query}&year=${releaseDate}`);
             setMovies(res.data.results || []);
         } catch (err) {
             console.error(err);
@@ -33,7 +34,7 @@ export default function Dashboard() {
         if (!query) return;
         try {
             // If search yielded nothing or user wants to force create
-            const res = await axios.post('/api/movies/', { title: query });
+            const res = await axios.post('/api/movies/', { title: query, release_date: releaseDate });
             // Add to results immediately
             setMovies([res.data, ...movies]);
             alert(`Film "${res.data.title}" créé ! Vous pouvez maintenant l'ajouter.`);
@@ -139,6 +140,13 @@ export default function Dashboard() {
                                 onChange={(e) => setQuery(e.target.value)}
                             />
                         </div>
+                        <input
+                            type="text"
+                            className="input-field w-32"
+                            placeholder="Année"
+                            value={releaseDate}
+                            onChange={(e) => setReleaseDate(e.target.value)}
+                        />
                         <button type="submit" className="btn-primary">Rechercher</button>
                         <button type="button" onClick={createCustomMovie} className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-white font-medium">
                             Créer

@@ -16,15 +16,21 @@ export default function Auth() {
         setError('');
 
         if (isLogin) {
-            const success = await login(username, password);
-            if (success) navigate('/dashboard');
+            const user = await login(username, password);
+            if (user) {
+                if (user.role === 'admin') navigate('/admin');
+                else navigate('/dashboard');
+            }
             else setError('Identifiants invalides');
         } else {
             const result = await register(username, password);
             if (result.success) {
                 // Auto login after register or ask to login? Let's auto login or switch to login
-                const loginSuccess = await login(username, password);
-                if (loginSuccess) navigate('/dashboard');
+                const loggedInUser = await login(username, password);
+                if (loggedInUser) {
+                    if (loggedInUser.role === 'admin') navigate('/admin');
+                    else navigate('/dashboard');
+                }
                 else setIsLogin(true); // Fallback
             } else setError(result.error);
         }

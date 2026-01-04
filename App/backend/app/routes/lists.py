@@ -58,6 +58,7 @@ def get_list(list_id_str):
         "owner_id": movie_list.user_id,
         "is_owner": is_owner,
         "public_id": movie_list.public_id,
+        "private_id": movie_list.private_id if is_owner else None,
         "items": items
     })
 
@@ -127,3 +128,73 @@ def get_my_lists():
             "item_count": len(l.items)
         })
     return jsonify(results)
+
+@bp.route('/<string:private_id>/items/<int:item_id>', methods=['DELETE'])
+def remove_item(private_id, item_id):
+    movie_list = List.query.filter_by(private_id=private_id).first()
+    if not movie_list:
+        return jsonify({"msg": "List not found"}), 404
+        
+    item = ListItem.query.get(item_id)
+    if not item or item.list_id != movie_list.id:
+        return jsonify({"msg": "Item not found in this list"}), 404
+        
+    db.session.delete(item)
+    db.session.commit()
+    
+    return jsonify({"msg": "Item removed"}), 200
+
+@bp.route('/<string:private_id>/items/<int:item_id>', methods=['PUT'])
+def update_item(private_id, item_id):
+    movie_list = List.query.filter_by(private_id=private_id).first()
+    if not movie_list:
+        return jsonify({"msg": "List not found"}), 404
+        
+    item = ListItem.query.get(item_id)
+    if not item or item.list_id != movie_list.id:
+        return jsonify({"msg": "Item not found in this list"}), 404
+    
+    data = request.get_json()
+    if 'comment' in data:
+        item.comment = data['comment']
+        
+    db.session.commit()
+    
+    return jsonify({
+        "msg": "Item updated",
+        "item": {
+            "id": item.id,
+            "comment": item.comment
+        }
+    }), 200
+
+@bp.route('/<string:private_id>', methods=['PUT'])
+def update_list(private_id):
+    movie_list = List.query.filter_by(private_id=private_id).first()
+    if not movie_list:
+        return jsonify({"msg": "List not found"}), 404
+    
+    data = request.get_json()
+    if 'name' in data:
+        movie_list.name = data['name']
+        
+    db.session.commit()
+    
+    return jsonify({
+        "msg": "List updated",
+        "list": {
+            "id": movie_list.id,
+            "name": movie_list.name
+        }
+    }), 200
+
+@bp.route('/<string:private_id>', methods=['DELETE'])
+def delete_list(private_id):
+    movie_list = List.query.filter_by(private_id=private_id).first()
+    if not movie_list:
+        return jsonify({"msg": "List not found"}), 404
+        
+    db.session.delete(movie_list)
+    db.session.commit()
+    
+    return jsonify({"msg": "List deleted"}), 200
