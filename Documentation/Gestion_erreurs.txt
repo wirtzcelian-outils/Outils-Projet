@@ -1,0 +1,87 @@
+Gestion des Erreurs
+
+
+1. Principes Généraux
+L'application suit les principes RESTful pour la communication des erreurs :
+   Utilisation des codes HTTP standard : Pour indiquer la nature de l'erreur (client vs serveur).
+   Format JSON uniforme : Toutes les erreurs retournent un objet JSON avec un champ `msg` descriptif.
+   Protection des données sensibles : Les détails techniques (stack traces) sont affichés dans la console serveur (stderr) mais jamais renvoyés au client en production.
+
+
+2. Backend (Flask API)
+
+Codes HTTP Utilisés
+Voici les principaux codes de statut retournés par l'API :
+
+| Code | Signification | Contexte d'utilisation |
+| :--- | :--- | :--- |
+| **200** | OK | Requête traitée avec succès returns data). |
+| **201** | Created | Ressource créée avec succès (ex: Inscription, Ajout film). |
+| **400** | Bad Request | Données manquantes ou invalides (ex: champ vide). |
+| **401** | Unauthorized | Échec d'authentification (Token invalide, mauvais mot de passe). |
+| **404** | Not Found | Ressource introuvable (Liste, Film, Utilisateur). |
+| **409** | Conflict | Conflit de données (ex: Nom d'utilisateur déjà pris). |
+| **500** | Internal Server Error | Bug imprévu côté serveur (ex: erreur DB non gérée). |
+
+Structure de Réponse
+En cas d'erreur, le corps de la réponse est toujours structuré ainsi :
+```json
+{
+  "msg": "Description claire de l'erreur pour l'utilisateur/développeur"
+}
+```
+
+Exemple (Login invalide) :
+```json
+// 401 Unauthorized
+{
+  "msg": "Bad username or password"
+}
+```
+
+Blocs Try/Except
+Les opérations critiques (Base de données, Auth) sont encapsulées dans des blocs `try...except` :
+   Auth : Capture les erreurs lors du hachage ou de la génération de token.
+   DB : Utilisation de `db.session.rollback()` en cas d'erreur pour éviter de laisser la transaction dans un état instable.
+
+Exemple (`routes/auth.py`) :
+```python
+try:
+    # Opérations DB...
+    db.session.commit()
+except Exception as e:
+    db.session.rollback() # Annulation propre
+    print(f"Error: {e}", file=sys.stderr) # Log serveur
+    return jsonify({"msg": "Internal Server Error"}), 500
+```
+
+---
+
+3. Frontend (React)
+
+Interception des Erreurs (Axios)
+Le frontend utilise `axios` pour les requêtes HTTP. Les erreurs sont capturées via les blocs `try...catch` dans les `Context` ou les composants.
+
+Gestion dans `AuthContext`
+Pour l'authentification (Login/Register), les erreurs sont gérées centralement :
+1.  L'API renvoie une erreur (ex: 401).
+2.  Le `catch` récupère l'objet erreur.
+3.  Le message est extrait (`error.response?.data?.msg`) et retourné au composant pour affichage.
+
+Exemple :
+```javascript
+const register = async (...) => {
+    try {
+        await axios.post(...);
+    } catch (error) {
+        // Extraction sécurisée du message d'erreur
+        const message = error.response?.data?.msg || "Erreur inconnue";
+        return { success: false, error: message };
+    }
+};
+```
+
+4. Robustesse (Docker & Production)
+   Redémarrage automatique : Dans `docker-compose.prod.yml`, les conteneurs ont `restart: always`. Si le backend plante (erreur 500 fatale), Docker le relance immédiatement.
+   Logs : Les erreurs "invisibles" pour le client sont accessibles via `docker logs flask_backend_prod` pour le débogage.
+

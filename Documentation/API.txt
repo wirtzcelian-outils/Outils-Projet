@@ -1,0 +1,3 @@
+Consulter http://localhost/apidocs/#/ lorsque le déploiement est en cours.
+
+Vous aurez les API disponible et ce sera plus simple avec Swagger qu'en utilisant Postman.

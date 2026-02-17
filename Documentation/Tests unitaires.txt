@@ -1,0 +1,30 @@
+Pour les exécuter --> python -m pytest dans le dossier backend.
+
+pytest : Framework de test standard et puissant pour Python.
+pytest-flask : Extensions pour faciliter le test d'applications Flask.
+
+
+Ils sont tous dans le dossier test de backend
+
+Authentication (test_auth.py):
+
+test_register_user: Verifies successful registration.
+test_register_duplicate_user: Ensures duplicate usernames are rejected (409).
+test_login_success: Checks that valid credentials return a JWT token.
+test_login_invalid: Checks that invalid passwords are rejected (401).
+Lists Management (test_lists.py):
+
+test_create_list: Verifies list creation (private/public IDs).
+test_get_my_lists: Ensures users only see their own lists.
+test_add_movie_to_list: Tests adding a movie to a list.
+test_delete_list: Verifies list deletion.
+Data Models (test_models.py):
+
+test_password_hashing: Proves passwords are hashed and not stored in plain text.
+test_user_list_relationship: Validates the database relationship between users and lists.
+Administration (test_admin.py):
+
+test_admin_route_protection: Security Check - Ensures standard users get 403 Forbidden on admin routes.
+test_admin_delete_user: Verifies admin can delete users.
+
+

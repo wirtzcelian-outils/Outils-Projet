@@ -8,3 +8,7 @@ PyMySQL==1.1.0
 python-dotenv==1.0.0
 requests==2.31.0
 cryptography
+flasgger==0.9.7.1
+pytest==7.4.3
+pytest-flask==1.3.0
+gunicorn==21.2.0

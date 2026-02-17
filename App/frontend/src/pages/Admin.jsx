@@ -2,22 +2,23 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 
+// Page d'administration (protégée)
+// Permet de gérer les utilisateurs, les films personnalisés, et d'exporter/importer les données
 export default function Admin() {
     const [users, setUsers] = useState([]);
     const [customMovies, setCustomMovies] = useState([]);
-    const [activeTab, setActiveTab] = useState('users'); // 'users' or 'movies'
+    const [activeTab, setActiveTab] = useState('users'); // Onglet actif : 'users' ou 'movies'
     const [error, setError] = useState('');
     const { token, logout } = useAuth();
 
-    // Deletion states
+    // États pour les modales et confirmations
     const [showMovieDeleteConfirm, setShowMovieDeleteConfirm] = useState(null);
-
-    // Edit Modal State
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [currentUser, setCurrentUser] = useState(null);
     const [editUsername, setEditUsername] = useState('');
     const [editPassword, setEditPassword] = useState('');
 
+    // Chargement initial des données
     useEffect(() => {
         if (token) {
             fetchUsers();
@@ -48,6 +49,7 @@ export default function Admin() {
         }
     };
 
+    // Suppression d'un utilisateur
     const handleDelete = async (userId) => {
         if (!window.confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.")) return;
 
@@ -60,6 +62,7 @@ export default function Admin() {
         }
     };
 
+    // Suppression d'un film personnalisé
     const handleDeleteMovie = async () => {
         if (!showMovieDeleteConfirm) return;
         try {
@@ -67,20 +70,22 @@ export default function Admin() {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setShowMovieDeleteConfirm(null);
-            fetchCustomMovies();
+            fetchCustomMovies(); // Rafraîchir la liste après suppression
         } catch (err) {
             console.error(err);
             alert("Erreur lors de la suppression du film");
         }
     };
 
+    // Ouverture de la modale d'édition utilisateur
     const openEditModal = (user) => {
         setCurrentUser(user);
         setEditUsername(user.username);
-        setEditPassword(''); // Reset password field
+        setEditPassword(''); // On ne pré-remplit jamais le mot de passe
         setIsEditModalOpen(true);
     };
 
+    // Soumission de la modification utilisateur
     const handleEditSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -89,7 +94,7 @@ export default function Admin() {
 
             await axios.put(`/api/admin/users/${currentUser.id}`, data);
 
-            // Update local state
+            // Mise à jour locale de l'état pour éviter un rechargement
             setUsers(users.map(u => u.id === currentUser.id ? { ...u, username: editUsername } : u));
             setIsEditModalOpen(false);
             alert("Utilisateur mis à jour avec succès.");
@@ -99,9 +104,58 @@ export default function Admin() {
         }
     };
 
+    // Export des données au format JSON
+    const handleExport = async () => {
+        try {
+            const response = await axios.get('/api/admin/export', {
+                headers: { Authorization: `Bearer ${token}` },
+                responseType: 'blob', // Important pour télécharger un fichier
+            });
+
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            const date = new Date().toISOString().split('T')[0];
+            link.setAttribute('download', `backup_cineconnect_${date}.json`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (err) {
+            console.error("Export failed", err);
+            alert("Erreur lors de l'export.");
+        }
+    };
+
+    // Import des données depuis un fichier JSON
+    const handleImport = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+            try {
+                const jsonData = JSON.parse(event.target.result);
+                await axios.post('/api/admin/import', jsonData, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                alert("Import réussi ! La page va se rafraîchir.");
+                window.location.reload();
+            } catch (err) {
+                console.error("Import failed", err);
+                alert("Erreur lors de l'import : " + (err.response?.data?.msg || err.message));
+            }
+        };
+        reader.readAsText(file);
+        e.target.value = ''; // Reset de l'input file
+    };
+
     return (
         <div className="min-h-screen bg-slate-900 text-white p-8">
             <div className="max-w-6xl mx-auto">
+                {/* En-tête du Dashboard */}
                 <div className="flex justify-between items-center mb-8">
                     <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Admin Dashboard</h1>
                     <div className="flex gap-4">
@@ -121,8 +175,26 @@ export default function Admin() {
                     </div>
                 </div>
 
+                {/* Barre d'actions (Export / Import) */}
+                <div className="flex gap-4 mb-8">
+                    <button onClick={handleExport} className="btn-primary flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                        </svg>
+                        Sauvegarder les données
+                    </button>
+                    <label className="btn-secondary flex items-center gap-2 cursor-pointer">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                        </svg>
+                        Importer des données
+                        <input type="file" accept=".json" onChange={handleImport} className="hidden" />
+                    </label>
+                </div>
+
                 {error && <p className="text-red-400 mb-4">{error}</p>}
 
+                {/* Contenu principal : Liste Utilisateurs OU Films Custom */}
                 {activeTab === 'users' ? (
                     <div className="card overflow-hidden">
                         <table className="w-full text-left border-collapse">
@@ -207,7 +279,8 @@ export default function Admin() {
                         </table>
                     </div>
                 )}
-                {/* Confirm Movie Delete Modal */}
+
+                {/* Modale de confirmation de suppression de film */}
                 {showMovieDeleteConfirm && (
                     <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
                         <div className="card w-full max-w-md border border-red-500/20">
@@ -237,7 +310,7 @@ export default function Admin() {
 
             </div>
 
-            {/* Edit Modal */}
+            {/* Modale d'édition utilisateur */}
             {isEditModalOpen && (
                 <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
                     <div className="card w-full max-w-md">

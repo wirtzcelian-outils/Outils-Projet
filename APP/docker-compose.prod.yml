@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # Base de données MySQL (inchangée)
+  db:
+    image: mysql:8.0
+    container_name: mysql_db_prod
+    restart: always
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      timeout: 20s
+      retries: 10
+
+  # Backend (Flask avec Gunicorn)
+  # Utilise l'image qui sera sur Docker Hub
+  backend:
+    image: tempddaw/app-backend:latest
+    container_name: flask_backend_prod
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Frontend (React avec Nginx)
+  # Utilise l'image qui sera sur Docker Hub
+  frontend:
+    image: tempddaw/app-frontend:latest
+    container_name: react_frontend_prod
+    restart: always
+    depends_on:
+      - backend
+
+  # Nginx Gateway (Reverse Proxy)
+  nginx:
+    image: nginx:latest
+    container_name: nginx_gateway_prod
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/prod.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - frontend
+      - backend

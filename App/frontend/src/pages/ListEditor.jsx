@@ -7,15 +7,20 @@ import Navbar from '../components/Navbar';
 import SortableItem from '../components/SortableItem';
 import { Share2, Lock, Pencil, Check, X, Trash2 } from 'lucide-react';
 
+// Page d'édition / visualisation d'une liste
+// Gère le Drag & Drop, la modification du nom, et l'ajout de commentaires
 export default function ListEditor() {
-    const { listId } = useParams(); // Can be private or public ID
+    const { listId } = useParams(); // Peut être un ID public ou privé
     const navigate = useNavigate();
     const [list, setList] = useState(null);
     const [items, setItems] = useState([]);
-    const [isOwner, setIsOwner] = useState(false);
+    const [isOwner, setIsOwner] = useState(false); // Détermine les droits d'édition
+
+    // États pour le renommage de la liste
     const [isEditingName, setIsEditingName] = useState(false);
     const [listNameDraft, setListNameDraft] = useState('');
 
+    // Configuration des capteurs pour le Drag & Drop (Souris, Tactile, Clavier)
     const sensors = useSensors(
         useSensor(PointerSensor),
         useSensor(KeyboardSensor, {
@@ -23,11 +28,12 @@ export default function ListEditor() {
         })
     );
 
+    // Chargement des détails de la liste
     const fetchList = async () => {
         try {
             const res = await axios.get(`/api/lists/${listId}`);
             setList(res.data);
-            setItems(res.data.items.sort((a, b) => a.rank - b.rank));
+            setItems(res.data.items.sort((a, b) => a.rank - b.rank)); // Tri par rang
             setIsOwner(res.data.is_owner);
         } catch (err) {
             console.error(err);
@@ -38,6 +44,7 @@ export default function ListEditor() {
         fetchList();
     }, [listId]);
 
+    // Gestion de la fin du glisser-déposer
     const handleDragEnd = async (event) => {
         const { active, over } = event;
 
@@ -48,13 +55,13 @@ export default function ListEditor() {
 
                 const newOrder = arrayMove(items, oldIndex, newIndex);
 
-                // Update ranks locally then sync
+                // Recalcul des rangs
                 const updatedOrder = newOrder.map((item, index) => ({
                     ...item,
                     rank: index + 1
                 }));
 
-                // Sync with backend
+                // Sauvegarde du nouvel ordre si propriétaire
                 if (isOwner && list.private_id) {
                     axios.put(`/api/lists/${list.private_id}/reorder`, {
                         items: updatedOrder.map(i => ({ id: i.id, rank: i.rank }))
@@ -66,6 +73,7 @@ export default function ListEditor() {
         }
     };
 
+    // Suppression d'un film de la liste
     const handleRemoveItem = async (itemId) => {
         if (!confirm('Voulez-vous vraiment retirer ce film de la liste ?')) return;
 
@@ -78,6 +86,7 @@ export default function ListEditor() {
         }
     };
 
+    // Mise à jour d'un item (ex: commentaire)
     const handleUpdateItem = async (itemId, newData) => {
         try {
             await axios.put(`/api/lists/${list.private_id}/items/${itemId}`, newData);
@@ -90,6 +99,7 @@ export default function ListEditor() {
         }
     };
 
+    // Renommage de la liste
     const handleUpdateListName = async () => {
         if (!listNameDraft.trim()) {
             alert('Le nom ne peut pas être vide');
@@ -105,6 +115,7 @@ export default function ListEditor() {
         }
     };
 
+    // Suppression complète de la liste
     const handleDeleteList = async () => {
         if (!confirm('Voulez-vous vraiment supprimer cette liste ? Cette action est irréversible.')) return;
 
@@ -124,6 +135,7 @@ export default function ListEditor() {
         <div className="min-h-screen bg-background">
             <Navbar />
             <div className="container mx-auto p-6 max-w-4xl">
+                {/* En-tête de liste (Nom et Actions) */}
                 <div className="flex justify-between items-start mb-8">
                     <div className="flex-1">
                         {isEditingName && isOwner ? (
@@ -174,6 +186,8 @@ export default function ListEditor() {
                             {isOwner ? "Mode Édition" : "Mode Lecture Seule"}
                         </p>
                     </div>
+
+                    {/* Actions de partage et suppression */}
                     {isOwner && (
                         <div className="flex gap-2">
                             <button
@@ -199,6 +213,7 @@ export default function ListEditor() {
                     )}
                 </div>
 
+                {/* Liste triable */}
                 <DndContext
                     sensors={sensors}
                     collisionDetection={closestCenter}

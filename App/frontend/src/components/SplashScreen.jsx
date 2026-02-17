@@ -1,6 +1,8 @@
 import React from 'react';
 import { Film } from 'lucide-react';
 
+// Écran de chargement affiché au démarrage de l'application
+// Utilisé notamment lors de l'attente du réveil du backend (Health Check)
 export default function SplashScreen() {
     return (
         <div className="fixed inset-0 bg-background flex flex-col items-center justify-center z-50">
@@ -12,7 +14,7 @@ export default function SplashScreen() {
                 <p className="text-slate-400 text-sm">Démarrage du serveur...</p>
             </div>
 
-            {/* Loading Spinner */}
+            {/* Indicateur de chargement animé */}
             <div className="mt-8 flex gap-2">
                 <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
                 <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>

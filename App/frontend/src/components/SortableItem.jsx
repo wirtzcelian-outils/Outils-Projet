@@ -3,10 +3,13 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, Trash2, Pencil, Check, X } from 'lucide-react';
 
+// Composant représentant un élément de liste triable (film + commentaire)
 export default function SortableItem({ id, item, isOwner, onRemove, onUpdate }) {
     const [isEditing, setIsEditing] = useState(false);
+    // État local pour le brouillon du commentaire pendant l'édition
     const [commentDraft, setCommentDraft] = useState(item.comment || "");
 
+    // Hooks de dnd-kit pour gérer le drag & drop
     const {
         attributes,
         listeners,
@@ -15,16 +18,19 @@ export default function SortableItem({ id, item, isOwner, onRemove, onUpdate }) 
         transition,
     } = useSortable({ id });
 
+    // Application des styles de transformation pour l'animation de déplacement
     const style = {
         transform: CSS.Transform.toString(transform),
         transition,
     };
 
+    // Sauvegarde du commentaire édité
     const handleSaveComment = () => {
         onUpdate(id, { comment: commentDraft });
         setIsEditing(false);
     };
 
+    // Annulation de l'édition du commentaire
     const handleCancelComment = () => {
         setCommentDraft(item.comment || "");
         setIsEditing(false);
@@ -32,11 +38,14 @@ export default function SortableItem({ id, item, isOwner, onRemove, onUpdate }) 
 
     return (
         <div ref={setNodeRef} style={style} className="bg-surface p-4 mb-2 rounded-lg border border-slate-700 flex items-center gap-4 group">
+            {/* Poignée de déplacement (visible seulement pour le propriétaire) */}
             {isOwner && (
                 <div {...attributes} {...listeners} className="cursor-grab text-slate-500 hover:text-white">
                     <GripVertical size={20} />
                 </div>
             )}
+
+            {/* Affiche du film */}
             <div className="w-12 h-18 bg-slate-800 rounded shrink-0 overflow-hidden">
                 {item.movie.poster_path ? (
                     <img
@@ -48,12 +57,14 @@ export default function SortableItem({ id, item, isOwner, onRemove, onUpdate }) 
                     <div className="w-full h-full bg-slate-700" />
                 )}
             </div >
+
             <div className="flex-1">
                 <div className="flex items-center gap-2">
                     <span className="text-xl font-bold text-slate-600">#{item.rank}</span>
                     <h4 className="font-bold">{item.movie.title}</h4>
                 </div>
 
+                {/* Zone de commentaire: Mode Édition vs Mode Affichage */}
                 {isEditing ? (
                     <div className="mt-2 flex gap-2">
                         <textarea
@@ -93,6 +104,7 @@ export default function SortableItem({ id, item, isOwner, onRemove, onUpdate }) 
                 )}
             </div>
 
+            {/* Actions (Modifier / Supprimer) pour le propriétaire */}
             {isOwner && (
                 <div className="flex gap-1">
                     {!isEditing && (

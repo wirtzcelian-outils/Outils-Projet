@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
+// Création du contexte React pour l'authentification
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
@@ -8,7 +9,7 @@ export const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(localStorage.getItem('token'));
     const [loading, setLoading] = useState(true);
 
-    // Configure axios default header
+    // Au chargement du composant, on vérifie si une session est déjà stockée
     useEffect(() => {
         const storedToken = localStorage.getItem('token');
         const storedUser = localStorage.getItem('user');
@@ -19,13 +20,16 @@ export const AuthProvider = ({ children }) => {
                 try {
                     setUser(JSON.parse(storedUser));
                 } catch (e) {
+                    // Si erreur de parsing, on garde au moins le token
                     setUser({ token: storedToken });
                 }
             } else {
                 setUser({ token: storedToken });
             }
+            // Configuration globale d'Axios pour inclure le token dans toutes les requêtes futures
             axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
         } else {
+            // Nettoyage si pas de token
             delete axios.defaults.headers.common['Authorization'];
             setUser(null);
         }
@@ -34,15 +38,19 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (username, password) => {
         try {
-            const response = await axios.post('/api/auth/login', { username, password });
+            // Appel API pour se connecter
+            const response = await axios.post('/api/auth/login', {}, { params: { username, password } });
+
             const newToken = response.data.access_token;
-            // Backend returns { access_token, user: { id, username, role? } }
+            // Fusionne les infos utilisateur reçues avec le token
             const userData = { ...response.data.user, token: newToken };
 
+            // Mise à jour de l'état local et du stockage persistent
             setToken(newToken);
             localStorage.setItem('token', newToken);
             localStorage.setItem('user', JSON.stringify(userData));
 
+            // Mise à jour des headers Axios
             axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
             setUser(userData);
 
@@ -55,7 +63,8 @@ export const AuthProvider = ({ children }) => {
 
     const register = async (username, password) => {
         try {
-            await axios.post('/api/auth/register', { username, password });
+            // Appel API pour l'inscription
+            await axios.post('/api/auth/register', {}, { params: { username, password } });
             return { success: true };
         } catch (error) {
             console.error("Registration failed", error);
@@ -65,6 +74,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logout = () => {
+        // Nettoyage complet de l'état et du stockage lors de la déconnexion
         setToken(null);
         setUser(null);
         localStorage.removeItem('token');
@@ -73,10 +83,12 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
+        // Fournit les fonctions et l'état d'auth aux composants enfants
         <AuthContext.Provider value={{ user, token, login, register, logout, loading }}>
             {!loading && children}
         </AuthContext.Provider>
     );
 };
 
+// Hook personnalisé pour faciliter l'accès au contexte d'authentification
 export const useAuth = () => useContext(AuthContext);

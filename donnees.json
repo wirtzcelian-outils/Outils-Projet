@@ -1,0 +1,230 @@
+{
+  "exported_at": "2026-02-17T02:54:19.934684",
+  "list_items": [
+    {
+      "comment": null,
+      "id": 7,
+      "list_id": 3,
+      "movie_id": 1,
+      "rank": 1
+    },
+    {
+      "comment": null,
+      "id": 8,
+      "list_id": 3,
+      "movie_id": 9,
+      "rank": 3
+    },
+    {
+      "comment": null,
+      "id": 9,
+      "list_id": 4,
+      "movie_id": 2,
+      "rank": 1
+    },
+    {
+      "comment": null,
+      "id": 11,
+      "list_id": 4,
+      "movie_id": 5,
+      "rank": 3
+    },
+    {
+      "comment": null,
+      "id": 13,
+      "list_id": 7,
+      "movie_id": 4,
+      "rank": 1
+    },
+    {
+      "comment": null,
+      "id": 14,
+      "list_id": 7,
+      "movie_id": 5,
+      "rank": 2
+    },
+    {
+      "comment": null,
+      "id": 15,
+      "list_id": 7,
+      "movie_id": 8,
+      "rank": 3
+    },
+    {
+      "comment": null,
+      "id": 17,
+      "list_id": 5,
+      "movie_id": 3,
+      "rank": 1
+    },
+    {
+      "comment": null,
+      "id": 18,
+      "list_id": 5,
+      "movie_id": 4,
+      "rank": 2
+    },
+    {
+      "comment": null,
+      "id": 38,
+      "list_id": 5,
+      "movie_id": 4,
+      "rank": 3
+    },
+    {
+      "comment": null,
+      "id": 39,
+      "list_id": 4,
+      "movie_id": 26,
+      "rank": 2
+    }
+  ],
+  "lists": [
+    {
+      "created_at": "2026-02-15T19:20:54",
+      "id": 3,
+      "is_public": true,
+      "name": "cc",
+      "private_id": "646f4d29-84b0-420a-8c8a-1d4afcbcc1fd",
+      "public_id": "576566c1-bfc0-41cc-9def-6a0396de7eb6",
+      "user_id": 4
+    },
+    {
+      "created_at": "2026-02-15T19:48:34",
+      "id": 4,
+      "is_public": true,
+      "name": "ccc",
+      "private_id": "b2b07d40-ffd4-45b8-a9e3-438b55cfa31c",
+      "public_id": "7625a255-d99b-4a9e-8d2b-1aa46973b989",
+      "user_id": 5
+    },
+    {
+      "created_at": "2026-02-15T21:16:40",
+      "id": 5,
+      "is_public": true,
+      "name": "My Favorites",
+      "private_id": "5f81f023-f7eb-4c59-916d-51353d2ea8eb",
+      "public_id": "68c10703-627a-4ef7-8a57-45710854eb75",
+      "user_id": 5
+    },
+    {
+      "created_at": "2026-02-15T21:17:15",
+      "id": 6,
+      "is_public": true,
+      "name": "My Favorites",
+      "private_id": "acb0a548-0e68-4468-a1de-13e54827efb8",
+      "public_id": "b8fb5dab-99b7-45e5-82b4-da4dda05f3d4",
+      "user_id": 5
+    },
+    {
+      "created_at": "2026-02-16T15:43:48",
+      "id": 7,
+      "is_public": true,
+      "name": "c",
+      "private_id": "456c70ae-307d-4299-991c-66c62b340ef2",
+      "public_id": "ab9cea19-c3f6-4174-a945-142005583ca7",
+      "user_id": 4
+    }
+  ],
+  "movies": [
+    {
+      "id": 1,
+      "is_custom": false,
+      "poster_path": "/edv5CZvWj09upOsy2Y6IwDhK8bt.jpg",
+      "release_date": "2010-07-15",
+      "title": "Inception"
+    },
+    {
+      "id": 2,
+      "is_custom": false,
+      "poster_path": "/qJ2tW6WMUDux911r6m7haRef0WH.jpg",
+      "release_date": "2008-07-16",
+      "title": "The Dark Knight"
+    },
+    {
+      "id": 3,
+      "is_custom": false,
+      "poster_path": "/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg",
+      "release_date": "2014-11-05",
+      "title": "Interstellar"
+    },
+    {
+      "id": 4,
+      "is_custom": false,
+      "poster_path": "/d5iIlFn5s0ImszYzBPb8JPIfbXD.jpg",
+      "release_date": "1994-09-10",
+      "title": "Pulp Fiction"
+    },
+    {
+      "id": 5,
+      "is_custom": false,
+      "poster_path": "https://upload.wikimedia.org/wikipedia/en/f/fc/Fight_Club_poster.jpg",
+      "release_date": "1999-10-15",
+      "title": "Fight Club"
+    },
+    {
+      "id": 6,
+      "is_custom": false,
+      "poster_path": "/arw2vcBveWOVZr6pxd9XTd1TdQa.jpg",
+      "release_date": "1994-07-06",
+      "title": "Forrest Gump"
+    },
+    {
+      "id": 7,
+      "is_custom": false,
+      "poster_path": "/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",
+      "release_date": "1999-03-31",
+      "title": "The Matrix"
+    },
+    {
+      "id": 8,
+      "is_custom": false,
+      "poster_path": "/rCzpDGLbOoPwLjy3OAm5NUPOTrC.jpg",
+      "release_date": "2003-12-01",
+      "title": "Le Seigneur des Anneaux : Le Retour du Roi"
+    },
+    {
+      "id": 9,
+      "is_custom": false,
+      "poster_path": "https://upload.wikimedia.org/wikipedia/en/a/ab/La_La_Land_%29film%29.png",
+      "release_date": "2016-12-09",
+      "title": "La La Land"
+    },
+    {
+      "id": 10,
+      "is_custom": false,
+      "poster_path": "/or06FN3Dka5tukK1e9sl16pB3iy.jpg",
+      "release_date": "2019-04-24",
+      "title": "Avengers: Endgame"
+    },
+    {
+      "id": 25,
+      "is_custom": true,
+      "poster_path": null,
+      "release_date": "",
+      "title": "film2"
+    },
+    {
+      "id": 26,
+      "is_custom": true,
+      "poster_path": null,
+      "release_date": "",
+      "title": "film1"
+    }
+  ],
+  "users": [
+    {
+      "created_at": "2026-02-15T18:55:34",
+      "id": 4,
+      "password_hash": "$2b$12$3EaGxMFPqlbbYsD1cbmNdONmoLKUssQYabd/gojcWxsu3Uah0oKJK",
+      "username": "poivre"
+    },
+    {
+      "created_at": "2026-02-15T19:34:02",
+      "id": 5,
+      "password_hash": "$2b$12$FOq5oFwX9E9BO89rgYYaCeDHZFvtaKhU2jdFDXwd2ZIs.x74IIQ2y",
+      "username": "sel"
+    }
+  ],
+  "version": "1.0"
+}

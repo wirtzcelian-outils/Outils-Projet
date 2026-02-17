@@ -1,0 +1,21 @@
+1 Exemple de chaque relation :
+
+
+
+One-to-Many / Many-to-One
+
+Exemple : Un Utilisateur (User) possède plusieurs Listes (List).
+
+User (One) -> List (Many)
+Dans le code : users.lists (relation) et lists.user_id (clé étrangère).
+
+
+Many-to-Many
+
+Exemple : Une Liste (List) contient plusieurs Films (Movie), et un Film peut appartenir à plusieurs Listes.
+Cette relation est implémentée via un modèle d'association 
+
+
+One-to-One
+
+Exemple : Un Utilisateur (User) possède une unique biographie (Bio), et une biographie est liée à un seul utilisateur.

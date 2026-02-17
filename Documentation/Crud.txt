@@ -1,0 +1,25 @@
+CRUD est un acronyme anglais qui résume les 4 opérations fondamentales pour la gestion de données persistantes :
+
+Create : Ajouter de nouvelles données.
+Read : Consulter ou récupérer des données.
+Update : Modifier des données existantes.
+Delete : Effacer des données.
+
+
+Je l'utilise dans de nombreux emplacements, par exemple :
+
+Gestion des Listes (lists.py & ListEditor.jsx)
+
+Create : créer une nouvelle liste (POST /api/lists/).
+Read : voir les listes sur le Dashboard et le détail d'une liste (GET /api/lists/mine, GET /api/lists/<id>).
+Update : renommer une liste (PUT /api/lists/<id>) et réorganiser l'ordre des films (PUT /api/lists/<id>/reorder).
+Delete : supprimer une liste entière (DELETE /api/lists/<id>).
+
+
+Gestion des éléments de liste (Films dans une liste) :
+Create : Ajouter un film à une liste.
+Read : Voir les films dans la liste.
+Update : Modifier le commentaire d'un film (PUT .../items/<id>).
+Delete : Retirer un film d'une liste (DELETE .../items/<id>).
+
+...

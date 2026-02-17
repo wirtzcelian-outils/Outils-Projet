@@ -3,8 +3,9 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
+// Page d'authentification (Connexion / Inscription)
 export default function Auth() {
-    const [isLogin, setIsLogin] = useState(true);
+    const [isLogin, setIsLogin] = useState(true); // Bascule entre connexion et inscription
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const { login, register } = useAuth();
@@ -16,22 +17,25 @@ export default function Auth() {
         setError('');
 
         if (isLogin) {
+            // Tentative de connexion
             const user = await login(username, password);
             if (user) {
+                // Redirection selon le rôle (Admin ou User standard)
                 if (user.role === 'admin') navigate('/admin');
                 else navigate('/dashboard');
             }
             else setError('Identifiants invalides');
         } else {
+            // Tentative d'inscription
             const result = await register(username, password);
             if (result.success) {
-                // Auto login after register or ask to login? Let's auto login or switch to login
+                // Connexion automatique après inscription réussie
                 const loggedInUser = await login(username, password);
                 if (loggedInUser) {
                     if (loggedInUser.role === 'admin') navigate('/admin');
                     else navigate('/dashboard');
                 }
-                else setIsLogin(true); // Fallback
+                else setIsLogin(true); // Fallback: on affiche le form de login
             } else setError(result.error);
         }
     };
@@ -52,6 +56,7 @@ export default function Auth() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                 >
+                    {/* Onglets Connexion / Inscription */}
                     <div className="flex mb-6 border-b border-slate-700">
                         <button
                             className={`flex-1 pb-2 font-medium transition-colors ${isLogin ? 'text-primary border-b-2 border-primary' : 'text-secondary hover:text-white'}`}

@@ -5,18 +5,28 @@ import { Link } from 'react-router-dom';
 import { Search, Plus, Film } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+// Page d'accueil principale pour l'utilisateur connecté
 export default function Dashboard() {
     const [query, setQuery] = useState('');
     const [releaseDate, setReleaseDate] = useState('');
     const [movies, setMovies] = useState([]);
     const [myLists, setMyLists] = useState([]);
+
+    // États pour la création de liste
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [newListName, setNewListName] = useState('');
+
+    // États pour l'ajout de film à une liste
     const [selectedMovie, setSelectedMovie] = useState(null);
 
+    // États pour la gestion de la bio
+    const [bio, setBio] = useState('');
+    const [isEditingBio, setIsEditingBio] = useState(false);
+    const [bioDraft, setBioDraft] = useState('');
+
+    // Recherche de films (appele API locale ou externe via backend)
     const searchMovies = async (e) => {
         e.preventDefault();
-        // Allow empty search to get default library
         try {
             const res = await axios.get(`/api/movies/search?query=${query}&year=${releaseDate}`);
             setMovies(res.data.results || []);
@@ -25,17 +35,40 @@ export default function Dashboard() {
         }
     };
 
-    // Initial load of library
+    // Chargement initial (films par défaut + bio)
     useEffect(() => {
         searchMovies({ preventDefault: () => { } });
+        fetchBio();
+        fetchMyLists(); // Chargement des listes de l'utilisateur
     }, []);
 
+    const fetchBio = async () => {
+        try {
+            const res = await axios.get('/api/profile/');
+            setBio(res.data.bio || '');
+        } catch (err) {
+            console.error("Failed to fetch bio", err);
+        }
+    };
+
+    const handleSaveBio = async () => {
+        try {
+            await axios.put('/api/profile/', {}, { params: { bio: bioDraft } });
+            setBio(bioDraft);
+            setIsEditingBio(false);
+        } catch (err) {
+            console.error("Failed to save bio", err);
+            alert("Erreur lors de la sauvegarde de la bio");
+        }
+    };
+
+    // Création d'un film personnalisé si non trouvé dans la recherche
     const createCustomMovie = async () => {
         if (!query) return;
         try {
-            // If search yielded nothing or user wants to force create
-            const res = await axios.post('/api/movies/', { title: query, release_date: releaseDate });
-            // Add to results immediately
+            const res = await axios.post('/api/movies/', {}, {
+                params: { title: query, release_date: releaseDate }
+            });
             setMovies([res.data, ...movies]);
             alert(`Film "${res.data.title}" créé ! Vous pouvez maintenant l'ajouter.`);
         } catch (err) {
@@ -54,15 +87,16 @@ export default function Dashboard() {
 
     const createList = async () => {
         try {
-            await axios.post('/api/lists/', { name: newListName });
+            await axios.post('/api/lists/', {}, { params: { name: newListName } });
             setNewListName('');
             setShowCreateModal(false);
-            fetchMyLists();
+            fetchMyLists(); // Rafraichit la liste des listes
         } catch (err) {
             console.error(err);
         }
     };
 
+    // Ajoute le film sélectionné à une liste spécifique
     const addMovieToList = async (listPrivateId) => {
         if (!selectedMovie) return;
         try {
@@ -72,24 +106,68 @@ export default function Dashboard() {
                 poster_path: selectedMovie.poster_path
             });
             alert(`"${selectedMovie.title}" ajouté à la liste !`);
-            setSelectedMovie(null);
-            fetchMyLists(); // Refresh lists to update item counts
+            setSelectedMovie(null); // Ferme la modale
+            fetchMyLists(); // Met à jour le compteur de films
         } catch (err) {
             console.error(err);
             alert('Erreur lors de l\'ajout du film à la liste.');
         }
     };
 
-    useEffect(() => {
-        fetchMyLists();
-    }, []);
-
     return (
         <div className="min-h-screen bg-background relative">
             <Navbar />
             <div className="container mx-auto p-6">
 
-                {/* Lists Section */}
+                {/* Section BIO - Affichage et Édition */}
+                <div className="mb-8 card border border-primary/20 bg-surface/50">
+                    <div className="flex justify-between items-start">
+                        <h2 className="text-xl font-bold mb-2 text-primary">Ma Bio</h2>
+                        {!isEditingBio && (
+                            <button
+                                onClick={() => {
+                                    setBioDraft(bio);
+                                    setIsEditingBio(true);
+                                }}
+                                className="text-slate-400 hover:text-white text-sm"
+                            >
+                                Modifier
+                            </button>
+                        )}
+                    </div>
+
+                    {isEditingBio ? (
+                        <div className="space-y-3">
+                            <textarea
+                                className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white focus:border-primary focus:outline-none"
+                                rows="3"
+                                value={bioDraft}
+                                onChange={(e) => setBioDraft(e.target.value)}
+                                placeholder="Parlez-nous de vous..."
+                            />
+                            <div className="flex gap-2 justify-end">
+                                <button
+                                    onClick={() => setIsEditingBio(false)}
+                                    className="px-3 py-1 text-slate-400 hover:text-white text-sm"
+                                >
+                                    Annuler
+                                </button>
+                                <button
+                                    onClick={handleSaveBio}
+                                    className="px-3 py-1 bg-primary text-white rounded text-sm hover:bg-primary/80"
+                                >
+                                    Enregistrer
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        <p className="text-slate-300 italic">
+                            {bio || "Aucune bio définie."}
+                        </p>
+                    )}
+                </div>
+
+                {/* Section MES LISTES */}
                 <div className="mb-10">
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-2xl font-bold">Mes Listes</h2>
@@ -127,7 +205,7 @@ export default function Dashboard() {
                     </div>
                 </div>
 
-                {/* Search Section */}
+                {/* Section BIBLIOTHÈQUE / RECHERCHE */}
                 <div>
                     <h2 className="text-2xl font-bold mb-4">Bibliothèque Cine</h2>
                     <form onSubmit={searchMovies} className="flex gap-2 mb-6">
@@ -178,7 +256,7 @@ export default function Dashboard() {
                                     <p className="text-xs text-slate-500">{movie.release_date?.split('-')[0] || 'N/A'}</p>
                                 </div>
 
-                                {/* Hover Overlay */}
+                                {/* Overlay au survol : Ajouter à une liste */}
                                 <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-4">
                                     <button
                                         onClick={() => setSelectedMovie(movie)}
@@ -192,7 +270,7 @@ export default function Dashboard() {
                     </div>
                 </div>
 
-                {/* Add to List Modal */}
+                {/* Modale de sélection de liste pour l'ajout */}
                 {selectedMovie && (
                     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                         <div className="bg-surface p-6 rounded-xl w-full max-w-md border border-slate-700">

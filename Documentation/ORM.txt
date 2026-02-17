@@ -1,0 +1,56 @@
+Un ORM (Object-Relational Mapping) est une technique de programmation qui permet de faire le pont entre deux mondes qui ne parlent pas la même langue :
+
+Le monde Objet (code Python) et le monde Relationnel (MySQL) : où j'ai des tables, des lignes et des colonnes.
+
+Concrètement, un ORM agit comme un traducteur automatique. Au lieu d'écrire des requêtes SQL complexes (SELECT * FROM users WHERE ...), on utilise des objets Python, et l'ORM se charge de générer et d'exécuter le SQL.
+
+
+
+
+Dans ce projet, j'utilise SQLAlchemy via le package Flask-SQLAlchemy. C'est l'ORM le plus populaire dans l'écosystème Python/Flask.
+
+
+Exemple, dans backend/app/models.py
+
+Au lieu de créer les tables avec du SQL (CREATE TABLE users...), on a des classes Python :
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80)...)
+
+
+C'est l'ORM qui traduit cette ligne Python en SQL : SELECT id, username, password_hash, created_at FROM users;
+
+Quand on fait :
+existing = User.query.filter_by(username=u_data['username']).first()
+L'ORM traduit cela en : SELECT * FROM users WHERE username = '...' LIMIT 1;
+
+
+Avantages :
+Sécurité : L'ORM protège automatiquement contre la plupart des injections SQL.
+Simplicité : Vous n'avez pas besoin d'être un expert en SQL pour manipuler la base de données.
+Maintenance : Si vous changez de base de données (par exemple de MySQL à PostgreSQL), vous n'aurez pratiquement aucun code à changer.
+
+
+
+
+
+
+
+OUI, votre application est globalement conforme aux standards d'une API REST (Representational State Transfer).
+
+Elle respecte les principes clés suivants :
+
+Utilisation correcte des verbes HTTP :
+GET pour lire des données (ex: GET /api/admin/users pour récupérer la liste).
+POST pour créer des données (ex: POST /api/lists pour créer une nouvelle liste).
+PUT pour mettre à jour des données (ex: PUT /api/admin/users/<id> pour modifier un utilisateur).
+DELETE pour supprimer des données (ex: DELETE /api/admin/movies/<id> pour effacer un film).
+Architecture orientée Ressources :
+Vos URLs (endpoints) désignent des "choses" (des ressources) comme /users, /movies, /lists, et non des actions.
+
+
+
+
+Petite nuance
+Les endpoints /export et /import que nous venons d'ajouter sont ce qu'on appelle des RPC-style (Remote Procedure Call) ou des actions, car "exporter" n'est pas une ressource en soi. C'est très courant et tout à fait acceptable dans une API REST "pragmatique", mais un puriste REST strict pourrait tiquer. Cependant, pour votre projet, c'est parfait.
